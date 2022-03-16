@@ -12,6 +12,7 @@ setupInput()
 
 function setupInput() {
     window.addEventListener('keydown', handleInput, {once: true})
+    window.addEventListener('swiped', handleSwipeInput, {once: true})
 }
 
 async function handleInput(e) {
@@ -39,6 +40,57 @@ async function handleInput(e) {
             await moveLeft()
             break
         case "ArrowRight":
+            if (!canMoveRight()) {
+                setupInput()
+                return
+            }
+            await moveRight()
+            break
+    default:
+        setupInput()
+        return
+    }
+
+    grid.cells.forEach(cell => cell.mergeTiles())
+
+    const newTile = new Tile(gameBoard)
+    grid.randomEmptyCell().tile = newTile
+
+    if (!canMoveUp() && !canMoveDown() && !canMoveLeft() && !canMoveRight()) {
+        newTile.waitForTransition(true).then(() => {
+            alert("You lose!")
+        })
+        return
+    }
+
+    setupInput()
+}
+
+async function handleSwipeInput(e) {
+    console.log(e.detail.dir)
+    switch (e.detail.dir) {
+        case "up":
+            if (!canMoveUp()) {
+                setupInput()
+                return
+            }
+            await moveUp()
+            break
+        case "down":
+            if (!canMoveDown()) {
+                setupInput()
+                return
+            }
+            await moveDown()
+            break
+        case "left":
+            if (!canMoveLeft()) {
+                setupInput()
+                return
+            }
+            await moveLeft()
+            break
+        case "right":
             if (!canMoveRight()) {
                 setupInput()
                 return
